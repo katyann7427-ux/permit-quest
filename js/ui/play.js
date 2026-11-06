@@ -302,7 +302,7 @@ async function runArrival(root, ctx) {
   const wait = (ms) => new Promise((r) => setTimeout(r, reducedMotion() ? 0 : ms));
   await Promise.all(round.cars.map(async (c) => {
     await wait(c.arriveDelay || 0);
-    await animateCar(root, c.id, [c.from, c.stop], 4.5);
+    await animateCar(root, c.id, [c.from, c.stop], 11);
   }));
   await wait(250);
   if (ctx.activity !== a || a.phase !== 'arrive') return;

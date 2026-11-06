@@ -1,5 +1,6 @@
 // Driving mission scenes. Coordinates are in a 400x400 SVG viewBox, overhead view, north = up.
 // Lanes (drive on the right): northbound x=220, southbound x=180, eastbound y=220, westbound y=180.
+// `from` poses sit visibly on the approach roads so the intro screen shows every car.
 // A pose is [x, y, headingDeg] with 0 = facing north, 90 = east, 180 = south, -90 = west.
 // NPC car colors (yellow, teal, pink) are never offered as player accent colors.
 // Every round is a clean, unambiguous right-of-way situation tied to a verified rule.
@@ -33,8 +34,8 @@ export const SCENARIOS = [
         title: 'Who arrived first?',
         setup: 'The yellow car stopped at its line BEFORE you got there. You both want to go straight.',
         cars: [
-          { id: 'yellow', color: '#FFD23F', from: [-60, 220, 90], stop: P.westStop, arriveDelay: 0 },
-          { id: 'you', player: true, from: [220, 460, 0], stop: P.southStop, arriveDelay: 900, signal: null },
+          { id: 'yellow', color: '#FFD23F', from: [34, 220, 90], stop: P.westStop, arriveDelay: 0 },
+          { id: 'you', player: true, from: [220, 366, 0], stop: P.southStop, arriveDelay: 900, signal: null },
         ],
         choices: [
           'Wait for the yellow car to go, then go',
@@ -56,8 +57,8 @@ export const SCENARIOS = [
         title: 'Dead heat',
         setup: 'You and the teal car stop at the SAME moment. It is on your right. Both going straight.',
         cars: [
-          { id: 'teal', color: '#14B8A6', from: [460, 180, -90], stop: P.eastStop, arriveDelay: 0 },
-          { id: 'you', player: true, from: [220, 460, 0], stop: P.southStop, arriveDelay: 0 },
+          { id: 'teal', color: '#14B8A6', from: [366, 180, -90], stop: P.eastStop, arriveDelay: 0 },
+          { id: 'you', player: true, from: [220, 366, 0], stop: P.southStop, arriveDelay: 0 },
         ],
         choices: [
           'Yield — the car on your right goes first',
@@ -79,8 +80,8 @@ export const SCENARIOS = [
         title: 'Turning left',
         setup: 'You are signaling LEFT. The pink car across from you stops at the same moment and is going straight.',
         cars: [
-          { id: 'pink', color: '#FF5FA2', from: [180, -60, 180], stop: P.northStop, arriveDelay: 0 },
-          { id: 'you', player: true, from: [220, 460, 0], stop: P.southStop, arriveDelay: 0, signal: 'left' },
+          { id: 'pink', color: '#FF5FA2', from: [180, 34, 180], stop: P.northStop, arriveDelay: 0 },
+          { id: 'you', player: true, from: [220, 366, 0], stop: P.southStop, arriveDelay: 0, signal: 'left' },
         ],
         choices: [
           'Let the oncoming straight car go, then turn left',
