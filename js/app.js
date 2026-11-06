@@ -1,5 +1,7 @@
 import { load, save, requestPersistence } from './store.js';
 import { SCREENS } from './ui/screens.js';
+import { levelInfo } from './engine.js';
+import { COSMETICS } from './content/cosmetics.js';
 import { PLAY } from './ui/play.js';
 
 const root = document.getElementById('app');
@@ -14,6 +16,7 @@ const ctx = {
   now: () => Date.now(),
   save() {
     save(ctx.state);
+    celebrate();
   },
   go(hash) {
     if (location.hash === hash) ctx.render();
@@ -45,6 +48,7 @@ function render() {
   const changed = ctx.route !== name || ctx.params.join('/') !== params.join('/');
   ctx.route = name;
   ctx.params = params;
+  if (name !== 'play') ctx.lastHash = '#/' + [name, ...params].join('/');
   if (ctx.state.profile) document.documentElement.style.setProperty('--accent', ctx.state.profile.accent);
   root.innerHTML = `<div class="${changed ? 'fade-in' : ''}">${screen.render(ctx)}</div>`;
   const showNav = screen.nav !== false;
@@ -53,6 +57,25 @@ function render() {
   navEl.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.go === `#/${screen.tab || name}`));
   if (screen.mount) screen.mount(root, ctx);
   if (screen.title) document.title = `${screen.title} · Jack's Permit Quest`;
+}
+
+// Small wins: toast when Jack levels up or unlocks a garage item.
+let seenXp = ctx.state.xp;
+function celebrate() {
+  const xp = ctx.state.xp;
+  if (!ctx.state.profile || xp < seenXp) {
+    seenXp = xp;
+    return;
+  }
+  if (xp <= seenXp) return;
+  const before = levelInfo(seenXp).level;
+  const after = levelInfo(xp).level;
+  const unlocked = Object.values(COSMETICS).flat().filter((i) => i.xp > seenXp && i.xp <= xp);
+  seenXp = xp;
+  const msgs = [];
+  if (after > before) msgs.push(`LEVEL UP! LEVEL ${after}`);
+  if (unlocked.length) msgs.push(`GARAGE UNLOCK: ${unlocked.map((u) => u.name.toUpperCase()).join(', ')}`);
+  if (msgs.length) setTimeout(() => toast(msgs.join(' · ')), 900);
 }
 
 let toastTimer;

@@ -16,6 +16,15 @@ import { wipe } from '../store.js';
 const pad2 = (n) => String(n).padStart(2, '0');
 const fmtDate = (key) => new Date(parseDay(key)).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 
+// On iPhone, Safari and the Home Screen app keep separate storage. Nudge to install first.
+function iosBrowserTip() {
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const standalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+  if (!ios || standalone) return '';
+  return `<div class="card" style="border-color:rgba(255,176,32,.5)"><div class="eyebrow" style="color:var(--amber)">IPHONE TIP</div>
+    <p class="small" style="margin-top:6px">Add this app to your Home Screen <b>before</b> you start: tap <b>Share</b> → <b>Add to Home Screen</b>, then open it from there. Progress in Safari and in the Home Screen app is saved separately.</p></div>`;
+}
+
 // ---------------- Onboarding ----------------
 
 const onboard = {
@@ -30,6 +39,7 @@ const onboard = {
         <div class="card glow stack"><div class="eyebrow">DRIVER NAME</div>
           <input class="field" id="nick" maxlength="16" autocomplete="off" autocapitalize="characters" placeholder="Pick a nickname" value="${esc(o.nickname)}" aria-label="Nickname">
           <p class="tiny muted">Stays on this device only. No account, no email.</p></div>
+        ${iosBrowserTip()}
         <button class="btn primary block hero" data-act="o1">NEXT ›</button>
       </div>`;
     }
@@ -146,6 +156,7 @@ const home = {
   },
   actions: {
     start(ctx) {
+      ctx.ui.sessionDone = null; // never show last session's "complete" screen again
       ctx.go('#/session');
     },
     review(ctx) {

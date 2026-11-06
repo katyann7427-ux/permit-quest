@@ -163,6 +163,7 @@ test('session: 5 steps, +100 XP on completion, resumable', () => {
   const res = E.advanceSession(restored, T0);
   eq(res.done, true);
   eq(restored.xp, 100);
+  eq(res.session.xp, 100, 'session summary counts only session XP');
   eq(restored.sessions.completed, 1);
   eq(restored.sessions.current, null);
 });
@@ -235,6 +236,19 @@ test('every question references a real rule, has 4 unique choices and a valid an
 test('every rule is tested by at least 2 questions; every topic has >= 5', () => {
   RULES.forEach((r) => ok(QUESTIONS.filter((q) => q.rule === r.id).length >= 2, r.id));
   CATEGORIES.forEach((c) => ok(QUESTIONS.filter((q) => q.category === c.id).length >= 5, c.id));
+});
+test('answer length does not give away the correct choice', () => {
+  let longest = 0, counted = 0;
+  QUESTIONS.forEach((q) => {
+    const L = q.choices.map((c) => c.length);
+    const c = L[q.answer];
+    if (L.filter((x) => x === c).length > 1) return; // ties are neutral
+    counted++;
+    if (c === Math.max(...L)) longest++;
+    ok(c < 1.25 * Math.max(...L.filter((_, i) => i !== q.answer)) || c <= 12, `${q.id}: correct answer is much longer than every distractor`);
+  });
+  const rate = longest / counted;
+  ok(rate >= 0.1 && rate <= 0.4, `correct answer is the longest ${(rate * 100).toFixed(0)}% of the time (want 10-40%)`);
 });
 test('knowledge test format matches verified MVA format', () => {
   eq([KNOWLEDGE_TEST.questions, KNOWLEDGE_TEST.passMark, KNOWLEDGE_TEST.passPct], [25, 22, 88]);

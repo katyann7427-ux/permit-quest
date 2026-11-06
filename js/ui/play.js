@@ -152,6 +152,7 @@ const quizActions = {
   },
   next(ctx) {
     const a = ctx.activity;
+    if (a.picked === null || a.finished) return;
     a.i++;
     a.picked = null;
     a.showWhy = false;
@@ -166,6 +167,7 @@ const quizActions = {
   },
   done(ctx) {
     const a = ctx.activity;
+    if (!a || !a.finished) return;
     ctx.activity = null;
     (a.onDone || backTo('#/home'))(ctx, a);
   },
@@ -173,7 +175,7 @@ const quizActions = {
     const a = ctx.activity;
     ctx.activity = null;
     // Answers already given are saved; quitting just leaves the activity.
-    ctx.go(ctx.state.sessions.current ? '#/session' : a.back || '#/home');
+    ctx.go(ctx.lastHash || '#/home');
   },
 };
 
@@ -205,6 +207,7 @@ function learnView(ctx) {
 const learnActions = {
   lnext(ctx) {
     const a = ctx.activity;
+    if (!a || a.type !== 'learn') return;
     if (a.i + 1 < a.rules.length) {
       a.i++;
       ctx.render();
@@ -296,37 +299,40 @@ function animateCar(root, id, path, speed = 4.2) {
   return anim.finished.catch(() => {});
 }
 
-async function runArrival(root, ctx) {
+async function runArrival(root, ctx, token) {
   const a = ctx.activity;
   const round = a.sc.rounds[a.r];
+  const live = () => ctx.activity === a && a.animToken === token;
   const wait = (ms) => new Promise((r) => setTimeout(r, reducedMotion() ? 0 : ms));
   await Promise.all(round.cars.map(async (c) => {
     await wait(c.arriveDelay || 0);
-    await animateCar(root, c.id, [c.from, c.stop], 11);
+    if (live()) await animateCar(root, c.id, [c.from, c.stop], 11);
   }));
   await wait(250);
-  if (ctx.activity !== a || a.phase !== 'arrive') return;
+  if (!live() || a.phase !== 'arrive') return;
   a.phase = 'decide';
   a.order = shuffle(round.choices.map((_, i) => i));
   ctx.render();
 }
 
-async function runResolve(root, ctx) {
+async function runResolve(root, ctx, token) {
   const a = ctx.activity;
   const round = a.sc.rounds[a.r];
   for (const step of round.resolve) {
-    if (ctx.activity !== a) return;
+    if (ctx.activity !== a || a.animToken !== token) return;
     await animateCar(root, step.car, step.path, 4);
   }
 }
 
 const missionActions = {
   roll(ctx) {
+    if (ctx.activity.phase !== 'intro') return;
     ctx.activity.phase = 'arrive';
     ctx.render();
   },
   mpick(ctx, el) {
     const a = ctx.activity;
+    if (a.phase !== 'decide' || a.picked !== null) return; // ignore double taps
     const round = a.sc.rounds[a.r];
     a.picked = Number(el.dataset.i);
     const correct = a.picked === round.answer;
@@ -348,6 +354,7 @@ const missionActions = {
   },
   mnext(ctx) {
     const a = ctx.activity;
+    if (a.phase !== 'resolve') return;
     a.r++;
     a.picked = null;
     a.showWhy = false;
@@ -366,6 +373,7 @@ const missionActions = {
   },
   mdone(ctx) {
     const a = ctx.activity;
+    if (!a || a.phase !== 'done') return;
     ctx.activity = null;
     (a.onDone || backTo('#/missions/drive'))(ctx, a);
   },
@@ -472,6 +480,7 @@ const examActions = {
     ctx.go('#/exams');
   },
   edone(ctx) {
+    if (!ctx.activity) return;
     ctx.activity = null;
     ctx.go('#/exams');
   },
@@ -482,7 +491,9 @@ const examActions = {
 function sessionLauncher(ctx) {
   const cur = ctx.state.sessions.current;
   const step = SESSION_STEPS[cur.step].key;
-  const back = (c) => {
+  // Session XP counts only what was earned inside this session's activities.
+  const back = (c, act) => {
+    if (c.state.sessions.current && act && act.xp) c.state.sessions.current.xp += act.xp;
     advanceSession(c.state, c.now());
     c.save();
     c.go('#/session');
@@ -515,7 +526,8 @@ function sessionLauncher(ctx) {
   }
 }
 
-function finishSession(ctx) {
+function finishSession(ctx, act) {
+  if (ctx.state.sessions.current && act && act.xp) ctx.state.sessions.current.xp += act.xp;
   const res = advanceSession(ctx.state, ctx.now());
   ctx.save();
   if (res && res.done) {
@@ -593,8 +605,10 @@ export const PLAY = {
       const fb = root.querySelector('.feedback');
       if (fb && fb.scrollIntoView) fb.scrollIntoView({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' });
       if (a?.type !== 'mission') return;
-      if (a.phase === 'arrive') runArrival(root, ctx);
-      if (a.phase === 'resolve') runResolve(root, ctx);
+      // Every render gets a new token, so stale animation loops (from REPLAY, NEXT, quitting) stop.
+      const token = (a.animToken = (a.animToken || 0) + 1);
+      if (a.phase === 'arrive') runArrival(root, ctx, token);
+      if (a.phase === 'resolve') runResolve(root, ctx, token);
     },
   },
   session: { nav: false, title: 'Session', render: sessionView, actions: sessionActions },

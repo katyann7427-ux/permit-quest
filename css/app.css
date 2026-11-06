@@ -21,7 +21,7 @@
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); }
 body { min-height: 100dvh; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
-button { font: inherit; color: inherit; }
+button { font: inherit; color: inherit; touch-action: manipulation; }
 a { color: var(--blue); }
 
 #app { max-width: 560px; margin: 0 auto; padding: calc(16px + var(--safe-t)) 16px calc(var(--nav-h) + 24px + var(--safe-b)); min-height: 100dvh; }
@@ -133,6 +133,7 @@ p { line-height: 1.45; margin: 0; }
 .sticky-foot { position: sticky; bottom: calc(12px + var(--safe-b)); margin-top: 16px; }
 
 /* ---------- Scene ---------- */
+.scene-wrap { max-width: min(100%, 46vh); margin-left: auto; margin-right: auto; }
 .scene-wrap { position: relative; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: #0E1424; aspect-ratio: 1 / 1; }
 .scene-wrap svg { display: block; width: 100%; height: 100%; }
 .scene-banner { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); padding: 8px 16px; border-radius: 99px; background: rgba(11,15,25,.88); border: 1px solid rgba(0,184,255,.6); font-weight: 900; font-style: italic; letter-spacing: .1em; font-size: 15px; white-space: nowrap; box-shadow: 0 0 24px rgba(0,184,255,.35); animation: pop .35s ease; }
@@ -211,4 +212,16 @@ input.field:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0,184,
   .brand .h1 { font-size: 27px; }
   .q-prompt { font-size: 19px; }
   .big { font-size: 28px; }
+}
+
+/* Short phones (iPhone SE / mini): keep all four answers on screen in missions and quizzes */
+@media (max-height: 700px) {
+  #app { padding-top: calc(10px + var(--safe-t)); }
+  .scene-wrap { max-width: min(100%, 36vh); }
+  .choice { min-height: 50px; padding: 9px 12px; font-size: 15px; }
+  .choice .key { width: 26px; height: 26px; }
+  .choices.stack > * + * { margin-top: 8px; }
+  .stack-lg > * + * { margin-top: 14px; }
+  .q-prompt { font-size: 19px; }
+  .btn.hero { min-height: 58px; font-size: 18px; }
 }

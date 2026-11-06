@@ -138,3 +138,20 @@ Every rule stores its rule ID, text, source, URL, page/section and date verified
 3. Grow the question bank to about 3 wordings per rule and add rules (aim for 5 per topic), all verified against the manual first.
 4. Add a progress export/import code as a backup, since there is no sync.
 5. Playtest with Jack for one real session, then tune pacing, text length and XP.
+
+## QA pass — 2026-11-06 (v1.0.2)
+Fixed:
+- **Answer key gave itself away.** The correct choice was the longest one in 74% of questions. Wrong answers were rewritten, and the correct one is now longest about 22% of the time, close to random. A test now blocks this from coming back.
+- **Mission animation glitches.** Tapping NEXT or REPLAY mid-animation could move the next round's cars.
+- **Double taps.** These could count one mission answer twice; double taps are now ignored everywhere.
+- **Stale session screen.** After finishing a session, START MISSION could reopen the old "Session complete" screen.
+- **Quit destination.** Quitting an activity now returns to the screen it started from, not always the session screen.
+- **Session XP.** The total counted XP earned outside the session; it now counts only the session's own activities.
+- **iPhone SE.** The 4th mission answer was below the screen; added a compact layout for short phones.
+- **iPhone storage.** Safari and the Home Screen app keep progress separately, so onboarding in Safari now shows an "add to Home Screen first" tip.
+- **Small wins.** Added level-up and garage-unlock pop-ups, and turned off double-tap zoom on buttons.
+
+Verified:
+- 29/29 unit tests pass.
+- About 1,500 random taps with no errors, blank screens or overflow.
+- Scripted runs completed 4 full weekly sessions and 3 practice exams. Readiness moved correctly (Building → Getting Close). No console errors.

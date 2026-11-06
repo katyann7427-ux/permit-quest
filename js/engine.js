@@ -311,7 +311,6 @@ export function startSession(state, now) {
     startedAt: now,
     step: 0,
     xp: 0,
-    xpStart: state.xp,
     mistakes: [],
   };
   return state.sessions.current;
@@ -326,9 +325,7 @@ export function advanceSession(state, now) {
   if (!cur) return null;
   cur.step++;
   if (cur.step >= SESSION_STEPS.length) {
-    award(state, XP.session);
-    // Session XP = everything earned since the session started (answers, missions, bonuses).
-    cur.xp = state.xp - (cur.xpStart ?? state.xp - XP.session);
+    cur.xp += award(state, XP.session);
     state.sessions.completed++;
     state.sessions.history.push({ at: now, n: cur.n, xp: cur.xp });
     state.sessions.current = null;
