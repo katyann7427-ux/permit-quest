@@ -1,5 +1,7 @@
 # Jack's Permit Quest — v1.0 playable prototype
 
+**Live:** https://katyann7427-ux.github.io/permit-quest/
+
 Maryland learner's-permit study app. Mobile-first PWA, works offline, no account, no backend, no paid APIs, no build step.
 
 ## Run it
@@ -14,10 +16,12 @@ Open http://localhost:5173. Tests: http://localhost:5173/tests/
 Any static web server works. There are no dependencies to install.
 
 ### Install it on an iPhone
-Service workers (offline mode) need **HTTPS**, so the phone needs a hosted copy. Any free static host works (GitHub Pages, Netlify, Cloudflare Pages); nothing has been published yet. On the iPhone, open the URL in Safari, then tap **Share → Add to Home Screen**.
+Hosted on GitHub Pages (HTTPS): https://katyann7427-ux.github.io/permit-quest/
+On the iPhone, open that URL in **Safari**, then tap **Share → Add to Home Screen**.
 
 ### Shipping an update
-Bump `VERSION` in `sw.js` whenever app files change. Otherwise installed copies keep serving the cached version.
+1. Edit files, then bump `VERSION` in `sw.js`. Otherwise installed copies keep serving the cached version.
+2. Commit and `git push`. GitHub Pages republishes in about a minute.
 
 ## Structure
 

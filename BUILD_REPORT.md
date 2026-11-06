@@ -63,10 +63,11 @@ See README.md. In short:
 ## 3. How to run
 `cd permit-quest && python3 -m http.server 5173`, then open http://localhost:5173. Tests are at `/tests/`.
 
-For the iPhone home screen, it needs an HTTPS static host. It has **not** been published; that needs Kate's approval.
+Published to GitHub Pages with Kate's approval (2026-11-06).
 
 ## 4. Preview
-Local only: http://localhost:5173. No public URL.
+**Live (HTTPS, GitHub Pages):** https://katyann7427-ux.github.io/permit-quest/
+Repository: https://github.com/katyann7427-ux/permit-quest (public). Local: http://localhost:5173.
 
 ## 5. Screenshots
 In `docs/screenshots/`: home, onboarding, rule card, quiz feedback + WHY, mission decision, mission correction, exam result, garage.
